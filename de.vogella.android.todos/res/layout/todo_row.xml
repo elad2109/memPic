@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <!--
+         <ImageView
+        android:id="@+id/icon"
+        android:layout_width="30dp"
+        android:layout_height="24dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/reminder" >
+    </ImageView>
+    -->
+
+    <ImageView
+        android:id="@+id/todo_row_image"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginLeft="21dp"
+        android:contentDescription="my image" />
+
+    <TextView
+        android:id="@+id/todo_row_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:lines="1"
+        android:text="@+id/titleTextView"
+        android:layout_toRightOf="@id/todo_row_image"
+        android:textSize="12sp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/todo_row_date"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/todo_row_title"
+        android:layout_marginTop="6dp"
+        android:lines="1"
+        android:text="@+id/dateTextView"
+        android:textSize="12sp" >
+
+    </TextView>
+    
+
+</RelativeLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+<TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/please_add_a_photo" />
+
+    <ImageView
+        android:id="@+id/todo_edit_image"
+        android:layout_width="188dp"
+        android:layout_height="274dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginLeft="21dp"
+        android:contentDescription="my image"
+        android:src="@drawable/plus_add_green" />
+
+    <Button
+        android:id="@+id/todo_edit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/todo_edit_confirm" />
+
+</LinearLayout>
