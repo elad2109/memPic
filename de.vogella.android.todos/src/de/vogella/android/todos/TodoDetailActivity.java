@@ -6,7 +6,11 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.FileContent;
+
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -24,6 +28,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+import de.vogella.android.todos.contentprovider.GoogleDriveProxeyActivity;
 import de.vogella.android.todos.contentprovider.MyTodoContentProvider;
 import de.vogella.android.todos.database.TodoTable;
 
@@ -33,6 +38,7 @@ import de.vogella.android.todos.database.TodoTable;
  */
 public class TodoDetailActivity extends Activity {
 
+private static final int SAVE_TO_DRIVE = 4;
 //	private EditText mTitleText;
 //	private EditText mBodyText;
 //	private DatePicker mDatePicker;
@@ -53,6 +59,9 @@ public class TodoDetailActivity extends Activity {
 	private Uri mTodoUri;
 	private Uri mCurrentImageUri;
 
+	
+	private ProgressDialog progressDialog;
+	
 	@Override
 	protected void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
@@ -118,6 +127,9 @@ try {
 
       imageView.setImageBitmap(Bitmap.createScaledBitmap(original,
               original.getWidth() / 2, original.getHeight() / 2, true));
+      
+      mCurrentImageUri = imageUri;
+      
   } catch (Exception e) {
       e.printStackTrace();
   } finally {
@@ -209,110 +221,131 @@ try {
 	    });
 
 	
+		
 		mExportToGCalendarButton.setOnClickListener(new View.OnClickListener() {
+			
+
 			@Override
 			public void onClick(View view) {
 				
 				
 				if (validate())
 				{
-					exportToGCalendar();
+
+					Uri uri = saveFileToDrive();
+					
+					//exportToGCalendar();
 					
 					setResult(RESULT_OK);
 					finish();
 				}
 			}
-
-			private boolean validate() {
-				
-				boolean ans = true;
-				
-				
-				//benda: validate all
-//				if (TextUtils.isEmpty(mTitleText.getText()))
-//				{
-//					makeToast("title");
-//					ans = false;
-//				}
-				
-				if (mImageView.getDrawable() == null)
-				{
-					makeToast("image");
-					ans = false;
-				}
-				
-				return ans;
-			}
-
-			private void exportToGCalendar() {
-				
-				//option A
-				//addCalendarEvent_contentResolver()
-				
-				//option B
-				addCalendarEvent_intent();
-			}
-
-			private void addCalendarEvent_contentResolver() {
-				long calID = 3;
-				long startMillis = 0; 
-				long endMillis = 0;     
-				Calendar beginTime = Calendar.getInstance();
-				beginTime.set(2012, 9, 14, 7, 30);
-				startMillis = beginTime.getTimeInMillis();
-				Calendar endTime = Calendar.getInstance();
-				endTime.set(2012, 9, 14, 8, 45);
-				endMillis = endTime.getTimeInMillis();
-
-
-				ContentResolver cr = getContentResolver();
-				ContentValues values = new ContentValues();
-				values.put(Events.DTSTART, startMillis);
-				values.put(Events.DTEND, endMillis);
-				values.put(Events.TITLE, "Jazzercise");
-				values.put(Events.DESCRIPTION, "Group workout");
-				values.put(Events.CALENDAR_ID, calID);
-				values.put(Events.EVENT_TIMEZONE, "America/Los_Angeles");
-				Uri uri = cr.insert(Events.CONTENT_URI, values);
-
-				// get the event ID that is the last element in the Uri
-				mEventId = Long.parseLong(uri.getLastPathSegment());
-				// 
-				// ... do something with event ID
-				//
-				//
-			}
-
-			private void addCalendarEvent_intent() {
-				Intent intent = new Intent(Intent.ACTION_INSERT);
-	                intent.setType("vnd.android.cursor.item/event");
-	                intent.putExtra(Events.TITLE, "Learn Android");
-	                intent.putExtra(Events.EVENT_LOCATION, "Home suit home");
-	                intent.putExtra(Events.DESCRIPTION, mCurrentImageUri.toString());
-	                
-	// Setting dates
-	                GregorianCalendar calDate = new GregorianCalendar(2013, 10, 8);
-	                intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
-	                        calDate.getTimeInMillis());
-	                intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
-	                        calDate.getTimeInMillis());
-
-	// Make it a full day event
-	                //intent.putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true);
-
-	// Make it a recurring Event
-	               // intent.putExtra(Events.RRULE, "FREQ=WEEKLY;COUNT=11;WKST=SU;BYDAY=TU,TH");
-
-	// Making it private and shown as busy
-	                intent.putExtra(Events.ACCESS_LEVEL, Events.ACCESS_PRIVATE);
-	                intent.putExtra(Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY);
-
-	           //     intent.setData(CalendarContract.Events.CONTENT_URI);
-	                startActivity(intent);
-			}
-
-		});
+	});
 	}
+
+		
+		//benda: move outside
+		private Uri saveFileToDrive() {
+			Intent i = new Intent(this, GoogleDriveProxeyActivity.class);
+//					
+//					String todoUri2 = descriptions.get(position);
+//					i.putExtra(MyTodoContentProvider.CONTENT_ITEM_TYPE, todoUri);
+//					
+					
+					// Activity returns an result if called with startActivityForResult
+					startActivityForResult(i, SAVE_TO_DRIVE);
+					
+					//benda: how works if another action started?
+					return null;
+			  }
+
+		private boolean validate() {
+			
+			boolean ans = true;
+			
+			
+			//benda: validate all
+//			if (TextUtils.isEmpty(mTitleText.getText()))
+//			{
+//				makeToast("title");
+//				ans = false;
+//			}
+			
+			if (mImageView.getDrawable() == null)
+			{
+				makeToast("image");
+				ans = false;
+			}
+			
+			return ans;
+		}
+
+		private void exportToGCalendar() {
+			
+			//option A
+			//addCalendarEvent_contentResolver()
+			
+			//option B
+			addCalendarEvent_intent();
+		}
+
+		private void addCalendarEvent_contentResolver() {
+			long calID = 3;
+			long startMillis = 0; 
+			long endMillis = 0;     
+			Calendar beginTime = Calendar.getInstance();
+			beginTime.set(2012, 9, 14, 7, 30);
+			startMillis = beginTime.getTimeInMillis();
+			Calendar endTime = Calendar.getInstance();
+			endTime.set(2012, 9, 14, 8, 45);
+			endMillis = endTime.getTimeInMillis();
+
+
+			ContentResolver cr = getContentResolver();
+			ContentValues values = new ContentValues();
+			values.put(Events.DTSTART, startMillis);
+			values.put(Events.DTEND, endMillis);
+			values.put(Events.TITLE, "Jazzercise");
+			values.put(Events.DESCRIPTION, "Group workout");
+			values.put(Events.CALENDAR_ID, calID);
+			values.put(Events.EVENT_TIMEZONE, "America/Los_Angeles");
+			Uri uri = cr.insert(Events.CONTENT_URI, values);
+
+			// get the event ID that is the last element in the Uri
+			mEventId = Long.parseLong(uri.getLastPathSegment());
+			// 
+			// ... do something with event ID
+			//
+			//
+		}
+
+		private void addCalendarEvent_intent() {
+			Intent intent = new Intent(Intent.ACTION_INSERT);
+                intent.setType("vnd.android.cursor.item/event");
+                intent.putExtra(Events.TITLE, "Learn Android");
+                intent.putExtra(Events.EVENT_LOCATION, "Home suit home");
+                intent.putExtra(Events.DESCRIPTION, mCurrentImageUri.toString());
+                
+// Setting dates
+                GregorianCalendar calDate = new GregorianCalendar(2013, 10, 8);
+                intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                        calDate.getTimeInMillis());
+                intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
+                        calDate.getTimeInMillis());
+
+// Make it a full day event
+                //intent.putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true);
+
+// Make it a recurring Event
+               // intent.putExtra(Events.RRULE, "FREQ=WEEKLY;COUNT=11;WKST=SU;BYDAY=TU,TH");
+
+// Making it private and shown as busy
+                intent.putExtra(Events.ACCESS_LEVEL, Events.ACCESS_PRIVATE);
+                intent.putExtra(Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY);
+
+           //     intent.setData(CalendarContract.Events.CONTENT_URI);
+                startActivity(intent);
+		}
 
 
 
@@ -360,6 +393,7 @@ try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mCurrentImageUri);
 
             mImageView.setImageBitmap(bitmap);
+		      
             }
 
          } catch (IOException e) {
@@ -419,6 +453,10 @@ try {
 
 		      mImageView.setImageBitmap(Bitmap.createScaledBitmap(original,
 		              original.getWidth() / HALF, original.getHeight() / HALF, true));
+		      
+		      
+		      mCurrentImageUri = imageUri;
+		      
 		  } catch (Exception e) {
 		      e.printStackTrace();
 		  } finally {
