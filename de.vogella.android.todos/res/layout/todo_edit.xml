@@ -5,22 +5,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/todo_edit_image"
-        android:text="@string/please_add_a_photo" />
-
-    <Button
-        android:id="@+id/todo_edit_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView1"
-        android:text="@string/todo_edit_confirm" />
-
     <ImageView
         android:id="@+id/edit_image"
         android:layout_width="50dp"
@@ -28,7 +12,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="40dp"
         android:layout_marginTop="78dp"
-        android:layout_toRightOf="@+id/todo_edit_button"
+        android:layout_toRightOf="@+id/todo_edit_image"
         android:src="@android:drawable/ic_menu_edit" />
 
     <ImageView
@@ -37,7 +21,7 @@
         android:layout_height="50dp"
         android:layout_below="@+id/edit_image"
         android:layout_marginLeft="40dp"
-        android:layout_toRightOf="@+id/todo_edit_button"
+        android:layout_toRightOf="@+id/todo_edit_image"
         android:src="@android:drawable/ic_delete" />
 
     <ImageView
@@ -48,5 +32,29 @@
         android:layout_alignParentTop="true"
         android:contentDescription="my image"
         android:src="@android:drawable/ic_menu_gallery" />
+
+    <Button
+        android:id="@+id/todo_edit_uplaod_to_drive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/delete_image"
+        android:text="@string/todo_edit_uplaod_to_drive" />
+
+    <Button
+        android:id="@+id/todo_edit_upload_to_calendar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/todo_edit_uplaod_to_drive"
+        android:text="@string/todo_edit_upload_to_calendar" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="44dp"
+        android:text="@string/please_add_a_photo" />
 
 </RelativeLayout>

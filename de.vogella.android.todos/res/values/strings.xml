@@ -11,6 +11,7 @@
 	<string name="todo_edit_title">Title</string>
 	<string name="todo_edit_date">Date</string>
 	<string name="todo_edit_description">Description</string>
-	<string name="todo_edit_confirm">Upload to G-Cal</string>
+	<string name="todo_edit_upload_to_calendar">Upload to G-Cal</string>
+	<string name="todo_edit_uplaod_to_drive">Upload to Drive</string>
 	<string name="please_add_a_photo">Please add a photo</string>
 </resources>

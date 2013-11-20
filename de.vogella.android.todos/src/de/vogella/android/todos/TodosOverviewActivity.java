@@ -45,8 +45,7 @@ public class TodosOverviewActivity extends ListActivity {
 	private static final int EDIT_ID = Menu.FIRST + 2;
 	
 	
-	// private Cursor cursor;
-	private SimpleCursorAdapter adapter;
+	// private Cursor;
 	private MySimpleArrayAdapter adapter2;
 
 	/** Called when the activity is first created. */
@@ -115,17 +114,10 @@ public class TodosOverviewActivity extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		Intent i = new Intent(this, TodoDetailActivity.class);
-		
-//for DB opening		
-//		Uri todoUri = Uri.parse(MyTodoContentProvider.CONTENT_URI + "/" + id);
-//		i.putExtra(MyTodoContentProvider.CONTENT_ITEM_TYPE, todoUri);
 
 		String todoUri = adapter2.getDesc(position);
-		
-		String todoUri2 = descriptions.get(position);
 		i.putExtra(MyTodoContentProvider.CONTENT_ITEM_TYPE, todoUri);
-		
-		
+
 		// Activity returns an result if called with startActivityForResult
 		startActivityForResult(i, ACTIVITY_EDIT);
 	}
@@ -149,25 +141,13 @@ public class TodosOverviewActivity extends ListActivity {
 	
 	private void fillData() {
 
-		//sort by date
-		fetchEvents();
+	//sort by date
+	fetchEvents();
 
-	     adapter2 = new MySimpleArrayAdapter
+	adapter2 = new MySimpleArrayAdapter
 	    		(this, nameOfEvent, startDates, descriptions);
-        
-	        
 	        setListAdapter(adapter2);
-		
-		
-		//getLoaderManager().initLoader(0, null, this);
-		//adapter = new SimpleCursorAdapter(this, R.layout.todo_row, null, from,
-		//		to, 0);
-
-		//setListAdapter(adapter);
-	        
-
-	            
-	        }
+    }
 
 	private void fetchEvents() {
 		String[] selection = new String[] { "calendar_id", "title", "description",
@@ -195,57 +175,21 @@ public class TodosOverviewActivity extends ListActivity {
 		    nameOfEvent.add(cursor.getString(1));
 		    startDates.add(new Date(Long.parseLong(cursor.getString(3))));
 		    //endDates.add(new Date(Long.parseLong(cursor.getString(4))));
-		    descriptions.add(cursor.getString(2));
+		    
+		    String fullDescription = cursor.getString(2);
+		    
+		    int firstIndex = fullDescription.indexOf("localUri: ");
+		    firstIndex = (firstIndex < 0)? 0 : 10;
+		    
+		    
+		    int lastIndex = fullDescription.indexOf("\n");
+		    lastIndex = (lastIndex < 0)? fullDescription.length() : lastIndex;
+		    
+		    descriptions.add(fullDescription.substring(firstIndex, lastIndex));
+		  
 		    CNames[i] = cursor.getString(1);
 		    cursor.moveToNext();
 
 		}
 	}
-	     
-
-private void getEventsList()
-{
-	
-	String[] projection = 
-			new String[]{ "calendar_id", "title", "description", "dtstart", "dtend", "eventLocation" };
-
-	String selection = "calendar_id=1";
-	
-		Cursor calCursor = 
-		      getContentResolver().
-		            query(Calendars.CONTENT_URI, 
-		                  projection, 
-		                  Calendars.VISIBLE + " = 1", 
-		                  null, 
-		                  Calendars._ID + " ASC");
-	
-	Context context = getApplicationContext();    
-    ContentResolver contentResolver = context.getContentResolver();  
-     //get current time  
-         //needed to compare with event time from calendar  
-         //all times are UTC so with one value we can check the date too  
-         //see wiki for UTC time  
-    //current time  
-     long ntime = System.currentTimeMillis();  
-         //read from the first calendar  
-         Cursor cursr = contentResolver.query(Uri.parse("content://com.android.calendar/events"), 
-        		 projection, selection, null, null);       
-         cursr.moveToFirst();  
-     String[] CalNames = new String[cursr.getCount()];  
-     int[] CalIds = new int[cursr.getCount()];  
-     for (int i = 0; i < CalNames.length; i++) {  
-       CalIds[i] = cursr.getInt(0);             
-       CalNames[i] = "Event"+cursr.getInt(0)+": \nTitle: "+ cursr.getString(1)+"\nDescription: "+cursr.getString(2)+"\nStart Date: "+cursr.getLong(3)+"\nEnd Date : "+cursr.getLong(4)+"\nLocation : "+cursr.getString(5);  
-       long StartTime = cursr.getLong(3);  
-       long EndTime = cursr.getLong(4);  
-       //do compare here  
-       //if we are on the middle of something stop checking and leave the loop  
-       if ((StartTime<ntime)&&(ntime<EndTime)) {  
-            System.out.println("In the middle of something");  
-            break;  
-       }                  
-       cursr.moveToNext();  
-     }  
-     cursr.close();  
-}
 }
