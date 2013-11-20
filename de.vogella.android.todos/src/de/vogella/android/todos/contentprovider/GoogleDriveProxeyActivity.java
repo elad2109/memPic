@@ -21,6 +21,10 @@ import android.widget.Toast;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.googleapis.media.MediaHttpUploader;
+import com.google.api.client.googleapis.media.MediaHttpUploaderProgressListener;
+import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
+import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
@@ -39,7 +43,7 @@ protected static final int SAVE_DRIVE_URI = 4;
 
   private static Uri fileUri;
   private static String filePath;
-  private static Drive service;
+  private static Drive mDriveService;
   private GoogleAccountCredential credential;
   
   private ProgressDialog progressDialog;
@@ -112,7 +116,7 @@ protected static final int SAVE_DRIVE_URI = 4;
         String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
         if (accountName != null) {
           credential.setSelectedAccountName(accountName);
-          service = getDriveService(credential);
+          mDriveService = getDriveService(credential);
           saveFileToDrive();
         }
       }
@@ -161,15 +165,41 @@ protected static final int SAVE_DRIVE_URI = 4;
           File body = new File();
           body.setTitle(fileContent.getName());
           body.setMimeType("image/jpeg");
+          //body.setParents("MemPicApp");
+          body.setDescription("uploaded from memPicApp");
+          File destFile = null;
+          
+          
+          if(fileContent.length() > 5 * 1024 * 1024)
+          {
+              // Resumable Uploads when the file size exceeds a file size of 5 MB.
+              // check link : 
+              // 1) https://code.google.com/p/google-api-java-client/source/browse/drive-cmdline-sample/src/main/java/com/google/api/services/samples/drive/cmdline/DriveSample.java?repo=samples&r=08555cd2a27be66dc97505e15c60853f47d84b5a
+              // 2) http://stackoverflow.com/questions/15970423/uploading-downloading-of-large-size-file-to-google-drive-giving-error
 
-          File file = service.files().insert(body, mediaContent).execute();
-          if (file != null) {
-            showToast("Photo uploaded: " + file.getTitle());
+              AbstractGoogleClientRequest<File> insert = mDriveService.files().insert(body, mediaContent);
+              MediaHttpUploader uploader = insert.getMediaHttpUploader();
+              uploader.setDirectUploadEnabled(false);
+              uploader.setProgressListener(new FileUploadProgressListener());
+              destFile = (File) insert.execute();
+
+          }   
+          else
+          {
+              // Else we go by Non Resumable Uploads, which is safe for small uploads.
+              destFile = mDriveService.files().insert(body, mediaContent).execute();
+          }
+          
+          
+          
+          //File file = service.files().insert(body, mediaContent).execute();
+          if (destFile != null) {
+            showToast("Photo uploaded: " + destFile.getTitle());
         
          
             //Intent resultIntent = new Intent(getBaseContext(), TodoDetailActivity.class);
             Intent resultIntent = new Intent();
-            resultIntent.putExtra("driveUri", file.getAlternateLink());
+            resultIntent.putExtra("driveUri", destFile.getAlternateLink());
     		setResult(Activity.RESULT_OK, resultIntent);
     		finish();
           }
@@ -183,6 +213,53 @@ protected static final int SAVE_DRIVE_URI = 4;
     t.start();
   }
 
+  
+  
+  
+  
+  
+
+
+  // Now the implementation of FileUploadProgressListener which extends MediaHttpUploaderProgressListener
+
+public static class FileUploadProgressListener implements MediaHttpUploaderProgressListener {
+
+  public void progressChanged(MediaHttpUploader uploader) throws IOException {
+//    switch (uploader.getUploadState()) {
+//      case INITIATION_STARTED:
+//    	  showToast("Initiation Started");
+//        break;
+//      case INITIATION_COMPLETE:
+//    	  showToast("Initiation Completed");
+//        break;
+//      case MEDIA_IN_PROGRESS:
+//        // postToDialog("Upload in progress");
+//    	  showToast("Upload percentage: " + uploader.getProgress());
+//        break;
+//      case MEDIA_COMPLETE:
+//    	  showToast("Upload Completed!");
+//        break;
+//
+//      case NOT_STARTED :
+//    	  showToast("Not Started!");
+//          break;
+//    }
+  }
+  
+  
+//  public void showToast(final String toast) {
+//	    runOnUiThread(new Runnable() {
+//	      @Override
+//	      public void run() {
+//	        Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_SHORT).show();
+//	      }
+//	    });
+//	  }
+}
+  
+  
+  
+  
  
   
   private Drive getDriveService(GoogleAccountCredential credential) {
