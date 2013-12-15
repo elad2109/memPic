@@ -41,6 +41,8 @@ public class TodoDetailActivity extends Activity {
 	private ImageView mImageView;
 	private Button mExportToGCalendarButton;
 	private Button mExportToDrive;
+	private Button mEdit;
+	private Button mDelete;
 
 	private final static int REQUEST_ID = 188;
 	private final static int SAVE_TO_DRIVE = 4;
@@ -143,8 +145,43 @@ public class TodoDetailActivity extends Activity {
 		}
 	}
 
+
 	// specific file
-	private void GetSpecificFile() {
+	private void OpenSpecificFile(Uri uri) {
+		Log.d("File path ", uri.getPath());
+			Intent intent = new Intent(Intent.ACTION_VIEW, null);
+			intent.setType("image/*");
+			intent.setData(uri);
+
+			Log.d("b4performSpecificCrop_startActivityForResult::",
+					Integer.toString(3));
+			startActivityForResult(intent, REQUEST_ID);
+			Log.d("afterperformSpecificCrop_startActivityForResult::",
+					Integer.toString(3));
+		}
+	
+	// specific file
+	private void OpenSpecificFile(File file) {
+		Log.d("File path ", file.getPath());
+		if (file.exists()) {
+			Intent intent = new Intent(Intent.ACTION_VIEW, null);
+			intent.setType("image/*");
+			intent.setData(Uri.fromFile(file));
+
+			Log.d("b4performSpecificCrop_startActivityForResult::",
+					Integer.toString(3));
+			startActivityForResult(intent, REQUEST_ID);
+			Log.d("afterperformSpecificCrop_startActivityForResult::",
+					Integer.toString(3));
+		} else {
+			// Toast.makeText(this, "No file exist to show",
+			// Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	
+	// from screenshots dir
+	private void GetPhotoFromScreenShotsDir() {
 		File dir = new File(Environment.getExternalStorageDirectory()
 				.getAbsolutePath() + "/Pictures/Screenshots");
 		Log.d("File path ", dir.getPath());
@@ -197,6 +234,13 @@ public class TodoDetailActivity extends Activity {
 			public void onClick(View view) {
 
 				GetAnyImage();
+				
+				mImageView.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						OpenSpecificFile(mCurrentImageUri);
+					}
+			});
 			}
 		});
 
@@ -224,6 +268,28 @@ public class TodoDetailActivity extends Activity {
 					setResult(RESULT_OK);
 					finish();
 				}
+			}
+		});
+		
+
+		mEdit.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View view) {
+
+				GetAnyImage();
+			}
+		});
+		
+		mDelete.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+
+				//mImageView.setImageResource(android.R.color.transparent);
+				//mImageView.setImageBitmap(null);
+				
+				mImageView.setImageResource(android.R.drawable.ic_menu_gallery);
 			}
 		});
 	}
@@ -350,26 +416,34 @@ public class TodoDetailActivity extends Activity {
 		mImageView = (ImageView) findViewById(R.id.todo_edit_image);
 		mExportToGCalendarButton = (Button) findViewById(R.id.todo_edit_upload_to_calendar);
 		mExportToDrive = (Button) findViewById(R.id.todo_edit_uplaod_to_drive);
+		
+		mEdit = (Button) findViewById(R.id.edit_image);
+		mDelete = (Button) findViewById(R.id.delete_image);
+		
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == SAVE_TO_DRIVE && resultCode == RESULT_OK) {
+		handleSuccessfulSavingToGoogleDrive(requestCode, resultCode, data);
+		}
+		else if (requestCode == REQUEST_ID && resultCode == Activity.RESULT_OK) {
+		handleReturnedImageFromIntent(requestCode, resultCode, data);
+		}
+	}
+
+	private void handleSuccessfulSavingToGoogleDrive(int requestCode,
+			int resultCode, Intent data) {
 			//mCurrentDriveUri = (Uri) data.getExtras().get("driveUri");
 			mCurrentDriveUri = (Uri) Uri.parse((String) data.getExtras().get("driveUri"));
 //			setResult(RESULT_OK);
 //			finish();
-		}
-
-		handleReturnedImageFromIntent(requestCode, resultCode, data);
 	}
 
 	private void handleReturnedImageFromIntent(int requestCode, int resultCode,
 			Intent data) {
-		if (requestCode == REQUEST_ID && resultCode == Activity.RESULT_OK) {
 			mCurrentImageUri = data.getData();
 			loadImageBitmapFromUri(mCurrentImageUri);
-		}
 	}
 
 	private void loadImageBitmapFromUri(Uri imageUri) {

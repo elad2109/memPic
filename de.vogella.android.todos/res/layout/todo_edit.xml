@@ -5,7 +5,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <ImageView
+    <Button
         android:id="@+id/edit_image"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -13,16 +13,16 @@
         android:layout_marginLeft="40dp"
         android:layout_marginTop="78dp"
         android:layout_toRightOf="@+id/todo_edit_image"
-        android:src="@android:drawable/ic_menu_edit" />
+        android:background="@android:drawable/ic_menu_edit" />
 
-    <ImageView
+    <Button
         android:id="@+id/delete_image"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_below="@+id/edit_image"
         android:layout_marginLeft="40dp"
         android:layout_toRightOf="@+id/todo_edit_image"
-        android:src="@android:drawable/ic_delete" />
+        android:background="@android:drawable/ic_delete" />
 
     <ImageView
         android:id="@+id/todo_edit_image"
@@ -31,7 +31,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:contentDescription="my image"
-        android:src="@android:drawable/ic_menu_gallery" />
+        android:src="@android:drawable/ic_menu_gallery"/>
 
     <Button
         android:id="@+id/todo_edit_uplaod_to_drive"
